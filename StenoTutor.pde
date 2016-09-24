@@ -20,6 +20,7 @@
 import java.io.*;
 import java.util.Properties;
 import java.util.Arrays;
+import guru.ttslib.*;
 
 // Session parameters, see data/session.properties for more info
 String lessonName;
@@ -45,7 +46,7 @@ Utils utils = new Utils();
 BufferedReader logReader = null;
 
 // Font definition, size is modified later
-final PFont font = createFont("Arial",30,true);
+PFont font;
 
 // Default relative path to Plover log for Win and other OSs
 final String winLogBasePath = "/AppData/Local/plover/plover/plover.log";
@@ -173,6 +174,8 @@ int keyboardY = baseY + 230;
 
 // Session setup
 void setup() {
+  font = createFont("Arial",30,true);
+  
   // Read session configuration
   readSessionConfig();
 
@@ -183,9 +186,9 @@ void setup() {
   logReader = utils.readEndOfFile(logFilePath);
 
   // Prepare file paths and read lesson dictionary and blacklist
-  lesDictionaryFilePath = sketchPath + "/data/lessons/" + lessonName + ".les";
-  chdDictionaryFilePath = sketchPath + "/data/lessons/" + lessonName + ".chd";
-  blkDictionaryFilePath = sketchPath + "/data/lessons/" + lessonName + ".blk";
+  lesDictionaryFilePath = sketchPath() + "/data/lessons/" + lessonName + ".les";
+  chdDictionaryFilePath = sketchPath() + "/data/lessons/" + lessonName + ".chd";
+  blkDictionaryFilePath = sketchPath() + "/data/lessons/" + lessonName + ".blk";
   dictionary = utils.readDictionary(lesDictionaryFilePath, chdDictionaryFilePath, debug);
   wordsBlacklist = utils.readBlacklist(blkDictionaryFilePath);
 
@@ -205,7 +208,8 @@ void setup() {
   keyboard = new Keyboard(keyboardX, keyboardY, showKeyboardQwerty);
 
   // Configure display size
-  size(frameSizeX, frameSizeY);
+  //size(frameSizeX, frameSizeY);
+  size(700, 480);
 
   // Initialize and configure speech synthesis
   tts = new TTS();
@@ -335,7 +339,7 @@ void applyStartBlacklist() {
 void readSessionConfig() {
   Properties properties = new Properties();
   try {
-    properties.load(openStream(sketchPath + "/data/session.properties"));
+    properties.load(createInput(sketchPath() + "/data/session.properties"));
   } catch (Exception e ) {
     println("Cannot read session properties, using defalt values. Error: " + e.getMessage());
   }
