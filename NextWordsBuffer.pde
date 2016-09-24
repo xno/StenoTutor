@@ -138,12 +138,12 @@ public class NextWordsBuffer {
       usedBufferSize += textWidth(dictionary.get(nextWordIndex).word.trim() + " ");
 
       // If only one word is required, break the loop
-      if(isSingleWordBuffer) break;
+      if (isSingleWordBuffer) break;
     }
 
     // Remove this word because it probably finishes off-screen,
     // unless it's the only one
-    if(nextWords.size() > 1) nextWords.remove(nextWords.size()-1);
+    if (nextWords.size() > 1) nextWords.remove(nextWords.size()-1);
 
     // Highlight first word
     highlightedWordIndex = 0;
@@ -155,11 +155,13 @@ public class NextWordsBuffer {
     // Create word pool
     ArrayList<Integer> wordPool = new ArrayList<Integer>();
 
+    int dictionaryLast = dictionary.size();
+
     // For each unlocked word, if it's not the current one and it
     // isn't blacklisted, add it to the pool a number of times,
     // based on word penalty.
     for (int i = 0; i < startBaseWords + unlockedWords; i++) {
-      if (i == previousWordIndex || wordsBlacklist.contains(dictionary.get(i).word)) continue;
+      if (i == previousWordIndex || i >= dictionaryLast || wordsBlacklist.contains(dictionary.get(i).word)) continue;
       else {
         int penalty = (int) map(wordStats.get(i).getWordPenalty(), penaltyLimits[0], penaltyLimits[1], 1, 100);
         for (int j = 0; j < penalty; j++) wordPool.add(i);

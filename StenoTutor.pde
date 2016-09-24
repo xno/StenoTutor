@@ -20,7 +20,6 @@
 import java.io.*;
 import java.util.Properties;
 import java.util.Arrays;
-import guru.ttslib.*;
 
 // Session parameters, see data/session.properties for more info
 String lessonName;
@@ -174,8 +173,8 @@ int keyboardY = baseY + 230;
 
 // Session setup
 void setup() {
-  font = createFont("Arial",30,true);
-  
+  font = createFont("Arial", 30, true);
+
   // Read session configuration
   readSessionConfig();
 
@@ -274,7 +273,7 @@ void draw() {
 
 void keyPressed() {
   if (keyCode == BACKSPACE) {
-      buffer = buffer.substring(0, max(0, buffer.length() - 1));
+    buffer = buffer.substring(0, max(0, buffer.length() - 1));
   }
 
   // Input buffer update.
@@ -340,7 +339,8 @@ void readSessionConfig() {
   Properties properties = new Properties();
   try {
     properties.load(createInput(sketchPath() + "/data/session.properties"));
-  } catch (Exception e ) {
+  } 
+  catch (Exception e ) {
     println("Cannot read session properties, using defalt values. Error: " + e.getMessage());
   }
   logFilePath = properties.getProperty("session.logFilePath", "");
@@ -363,7 +363,7 @@ void readSessionConfig() {
 
 // Automatically find Plover log file path
 void findPloverLog() {
-  if(!logFilePath.equals("")) return;
+  if (!logFilePath.equals("")) return;
   String userHome = System.getProperty("user.home");
   String userOs = System.getProperty("os.name");
   if (userOs.startsWith("Windows")) {
@@ -387,7 +387,10 @@ void blacklistCurrentWord() {
     unlockedWords++;
 
     // Make sure that the unlocked world isn't yet another blacklisted word
-    while (wordsBlacklist.contains(dictionary.get(startBaseWords + unlockedWords - 1).word)) unlockedWords++;
+    int ind = startBaseWords + unlockedWords - 1;
+    if (ind <= dictionary.size()) {
+      while (wordsBlacklist.contains(dictionary.get(startBaseWords + unlockedWords - 1).word)) unlockedWords++;
+    }
 
     // Clear and refresh next words buffer
     nextWordsBuffer.goToListEnd();
@@ -419,11 +422,11 @@ void drawKeyboard() {
 void showTextInfo(Stroke stroke) {
   textAlign(RIGHT);
   fill(isLessonPaused ? 200 : 250);
-  textFont(font,mainTextFontSize);
+  textFont(font, mainTextFontSize);
   text("Target words:", nextWordX - labelValueSpace, nextWordY);
   text("Input:", bufferX - labelValueSpace, bufferY);
   fill(200);
-  textFont(font,defaultFontSize);
+  textFont(font, defaultFontSize);
   text("Next chord:", nextChordX - labelValueSpace, nextChordY);
   text("Typed chord:", lastChordX - labelValueSpace, lastChordY);
   text("WPM:", wpmX - labelValueSpace, wpmY);
@@ -436,7 +439,7 @@ void showTextInfo(Stroke stroke) {
   text("Worst w:", worstWordX - labelValueSpace, worstWordY);
   textAlign(LEFT);
   fill(isLessonPaused ? 200 : 250);
-  textFont(font,mainTextFontSize);
+  textFont(font, mainTextFontSize);
   nextWordsBuffer.showText(nextWordX, nextWordY);
   text(buffer.trim() + (System.currentTimeMillis() % 1000 < 500 ? "_" : ""), bufferX, bufferY);
   fill(200);
@@ -485,7 +488,7 @@ void checkBuffer(boolean forceNextWord) {
 void updateWorstWord() {
   int worstWordIndex = 0;
   int tempWorstWordWpm = 500;
-  for (int i = 0; i < startBaseWords + unlockedWords; i++) {
+  for (int i = 0; i < startBaseWords + unlockedWords && i < dictionary.size(); i++) {
     if (wordsBlacklist.contains(dictionary.get(i).word)) {
       continue;
     }
@@ -506,7 +509,7 @@ void checkLevelUp() {
   if ((int) (typedWords / (getElapsedTime() / 60000.0)) < minLevelUpTotalWpm) {
     return;
   }
-  for (int i = 0; i < startBaseWords + unlockedWords; i++) {
+  for (int i = 0; i < startBaseWords + unlockedWords && i < dictionary.size(); i++) {
     if (wordsBlacklist.contains(dictionary.get(i).word)) {
       continue;
     }
@@ -514,14 +517,14 @@ void checkLevelUp() {
       return;
     }
   }
-  levelUp(); 
+  levelUp();
 }
 
 // Level up, unlock new words
 void levelUp() {
   int totalWords = startBaseWords + unlockedWords;
   if (totalWords == dictionary.size()) {
-    if(isLessonCompleted == false) {
+    if (isLessonCompleted == false) {
       announceLessonCompleted();
       isLessonCompleted = true;
     }
@@ -529,7 +532,7 @@ void levelUp() {
   }
   int i = totalWords;
   unlockedWords += incrementWords;
-  if(startBaseWords + unlockedWords > dictionary.size()) unlockedWords = dictionary.size() - startBaseWords;
+  if (startBaseWords + unlockedWords > dictionary.size()) unlockedWords = dictionary.size() - startBaseWords;
   while (totalWords < startBaseWords + unlockedWords && i < dictionary.size()) {
     if (wordsBlacklist.contains(dictionary.get(i).word.trim())) {
       unlockedWords++;
@@ -568,7 +571,7 @@ void sayCurrentWord() {
 // Get total unlocked words less blacklisted ones
 int getActualUnlockedWords() {
   int result = 0;
-  for (int i = 0; i < startBaseWords + unlockedWords; i++) {
+  for (int i = 0; i < startBaseWords + unlockedWords && i <dictionary.size(); i++) {
     if (!wordsBlacklist.contains(dictionary.get(i).word)) {
       result++;
     }
